@@ -1,0 +1,120 @@
+1. Create the Project Structure
+# Create the main project directory
+mkdir color-api && cd color-api
+
+# Create necessary subdirectories
+mkdir src
+
+# Create required files
+touch src/index.js Dockerfile .dockerignore package.json
+-------------------------------------------------------------------------
+
+2. Initialize Node.js & Install Dependencies
+Run the following command to initialize a Node.js project:
+
+npm init -y
+npm install express --save-exact
+------------------------------------------------------------------------
+
+3. Create the Express.js Application
+Edit src/index.js and add the following code:
+
+const express = require("express");
+const app = express();
+const port = 80;
+
+app.get("/", (req, res) => {
+  res.send("<h1 style='color:blue;'>Hello from Color API</h1>");
+});
+
+app.listen(port, () => {
+  console.log(`Color API listening on port ${port}`);
+});
+
+✅ This Express app:
+Runs on port 80.
+Returns a blue-colored message when accessed at /.
+------------------------------------------------------------------------
+
+ 4. Create the Dockerfile
+Edit Dockerfile and add the following:
+
+# Use a lightweight Node.js base image
+FROM node:22-alpine3.20
+
+# Set working directory inside the container
+WORKDIR /app
+
+# Copy package files first to leverage Docker caching
+COPY package.json package-lock.json ./
+
+# Install dependencies
+RUN npm ci
+
+# Copy the source code into the container
+COPY src ./src
+
+# Start the application
+CMD ["node", "src/index.js"]
+
+✅ This Dockerfile:
+Uses a lightweight Alpine-based Node.js image.
+Copies dependencies first (for efficient Docker layer caching).
+Copies the application code and runs node src/index.js.
+------------------------------------------------------------------------
+
+5. Create .dockerignore
+Edit .dockerignore and add:
+
+node_modules
+npm-debug.log
+
+✅ This prevents unnecessary files from being included in the Docker image.
+------------------------------------------------------------------------
+
+6. Build & Push the Docker Image to Docker Hub
+Replace your-dockerhub-username with your actual Docker Hub username.
+
+docker build -t your-dockerhub-username/color-api:1.0.0 .
+docker login
+docker push your-dockerhub-username/color-api:1.0.0
+✅ Your image is now available on Docker Hub and can be used in Kubernetes.
+------------------------------------------------------------------------
+
+ 7. Deploy the Image to Kubernetes
+Step 1: Run the Pod
+kubectl run color-api --image=your-dockerhub-username/color-api:1.0.0
+
+Step 2: Check Pod Status
+kubectl get pods
+
+Step 3: View Logs
+kubectl logs color-api
+
+Step 4: Get Pod IP
+kubectl describe pod color-api | grep IP
+------------------------------------------------------------------------
+
+8. Test Internal Communication Using an Alpine Pod
+Since Kubernetes assigns dynamic internal IPs, we need another pod to test connectivity.
+
+Step 1: Run an Alpine Pod
+kubectl run alpine --image=alpine:3.20 -it -- sh
+
+Step 2: Install curl in Alpine
+apk add curl
+
+Step 3: Test API Connectivity
+curl 10.244.0.5  -- (Replace 10.244.0.5 with your actual Pod IP)
+------------------------------------------------------------------------
+
+ 9. Clean Up Resources
+To remove all deployed resources, run:
+kubectl delete pod alpine --force --grace-period=0
+kubectl delete pod color-api --force --grace-period=0
+
+
+
+
+
+
