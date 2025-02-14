@@ -1,3 +1,6 @@
+install nodejs
+https://nodejs.org/en/download
+-------------------------------------------------------------------------
 1. Create the Project Structure
 # Create the main project directory
 mkdir color-api && cd color-api
