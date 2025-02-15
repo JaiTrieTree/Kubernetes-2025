@@ -16,6 +16,8 @@ touch src/index.js Dockerfile .dockerignore package.json
 Run the following command to initialize a Node.js project:
 
 npm init -y
+If you see error Remove package.json and run "npm init -y" again
+
 npm install express --save-exact
 ------------------------------------------------------------------------
 
